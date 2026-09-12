@@ -1,4 +1,5 @@
 <Solution>
   <Project Path="Catalogo.Dominio/Catalogo.Dominio.csproj" />
+  <Project Path="Catalogo.Pruebas/Catalogo.Pruebas.csproj" />
   <Project Path="Catalogo.Web/Catalogo.Web.csproj" />
 </Solution>
