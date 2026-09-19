@@ -1,0 +1,22 @@
+﻿<?xml version="1.0"?>
+<config>
+	<listaCategorias>
+		<categoria>Tecnologia</categoria>
+		<categoria padre="Tecnologia">Programacion</categoria>
+		<categoria padre="Tecnologia">Algoritmos</categoria>
+	</listaCategorias>
+	<listaLibros>
+		<libro>
+			<ISBN>9780131103627</ISBN>
+			<titulo>The C Programming Language</titulo>
+			<autor>Kernighan y Ritchie</autor>
+			<categoria>Programacion</categoria>
+		</libro>
+		<libro>
+			<ISBN>9780262033848</ISBN>
+			<titulo>Introduction to Algorithms</titulo>
+			<autor>Cormen</autor>
+			<categoria>Algoritmos</categoria>
+		</libro>
+	</listaLibros>
+</config>
