@@ -29,3 +29,6 @@ while (actual != null)
     Console.WriteLine(actual.Dato);
     actual = actual.Siguiente;
 }
+
+Console.WriteLine("\nOrganizacion completa de categorias:");
+catalogo.MostrarOrganizacion();

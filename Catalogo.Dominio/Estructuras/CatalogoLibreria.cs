@@ -41,5 +41,30 @@ namespace Catalogo.Dominio.Estructuras
             indiceLibros.Insertar(libro);
             categoria.Libros.AgregarFinal(libro);
         }
+
+        public bool EliminarLibro(long isbn)
+        {
+            Libro libro = indiceLibros.Buscar(isbn);
+
+            if (libro == null)
+            {
+                return false;
+            }
+
+            NodoCategoria categoria = arbolCategorias.BuscarPorNombre(libro.NombreCategoria);
+
+            indiceLibros.Eliminar(isbn);
+
+            if (categoria != null)
+            {
+                categoria.Libros.Eliminar(isbn);
+            }
+
+            return true;
+        }
+        public void MostrarOrganizacion()
+        {
+            arbolCategorias.MostrarOrganizacion();
+        }
     }
 }

@@ -17,7 +17,26 @@ namespace Catalogo.Dominio.Estructuras
             }
 
             NodoCategoria nueva = new NodoCategoria(nombre);
-            raiz = nueva;
+
+            if (raiz == null ||
+                string.Compare(nueva.Nombre, raiz.Nombre, StringComparison.OrdinalIgnoreCase) < 0)
+            {
+                nueva.SiguienteHermana = raiz;
+                raiz = nueva;
+            }
+            else
+            {
+                NodoCategoria actual = raiz;
+                while (actual.SiguienteHermana != null &&
+                       string.Compare(actual.SiguienteHermana.Nombre, nueva.Nombre, StringComparison.OrdinalIgnoreCase) < 0)
+                {
+                    actual = actual.SiguienteHermana;
+                }
+
+                nueva.SiguienteHermana = actual.SiguienteHermana;
+                actual.SiguienteHermana = nueva;
+            }
+
             indiceRaiz = InsertarEnIndice(indiceRaiz, nueva);
         }
 
@@ -52,6 +71,33 @@ namespace Catalogo.Dominio.Estructuras
                 actual = comparacion < 0 ? actual.Izquierdo : actual.Derecho;
             }
             return null;
+        }
+
+        public void MostrarOrganizacion()
+        {
+            MostrarDesde(raiz, 0);
+        }
+
+        private void MostrarDesde(NodoCategoria categoria, int nivel)
+        {
+            if (categoria == null)
+            {
+                return;
+            }
+
+            string sangria = new string(' ', nivel * 2);
+            Console.WriteLine($"{sangria}- {categoria.Nombre}");
+
+            string sangriaLibro = new string(' ', (nivel + 1) * 2);
+            NodoListaLibros nodoLibro = categoria.Libros.Primero;
+            while (nodoLibro != null)
+            {
+                Console.WriteLine($"{sangriaLibro}* {nodoLibro.Dato}");
+                nodoLibro = nodoLibro.Siguiente;
+            }
+
+            MostrarDesde(categoria.PrimeraSubcategoria, nivel + 1);
+            MostrarDesde(categoria.SiguienteHermana, nivel);
         }
 
         private NodoIndiceCategoria InsertarEnIndice(NodoIndiceCategoria nodoActual, NodoCategoria categoria)

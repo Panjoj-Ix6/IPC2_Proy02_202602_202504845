@@ -28,5 +28,38 @@ namespace Catalogo.Dominio.Estructuras
 
             cantidad++;
         }
+        public bool Eliminar(long isbn)
+        {
+            NodoListaLibros actual = primero;
+            NodoListaLibros anterior = null;
+
+            while (actual != null)
+            {
+                if (actual.Dato.Isbn == isbn)
+                {
+                    if (anterior == null)
+                    {
+                        primero = actual.Siguiente;
+                    }
+                    else
+                    {
+                        anterior.Siguiente = actual.Siguiente;
+                    }
+
+                    if (actual == ultimo)
+                    {
+                        ultimo = anterior;
+                    }
+
+                    cantidad--;
+                    return true;
+                }
+
+                anterior = actual;
+                actual = actual.Siguiente;
+            }
+
+            return false;
+        }
     }
 }
