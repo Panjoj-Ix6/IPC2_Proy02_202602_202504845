@@ -1,0 +1,36 @@
+﻿@using Catalogo.Dominio.Estructuras
+
+@if (Categoria != null)
+{
+    <li>
+        <strong>@Categoria.Nombre</strong>
+        @if (Categoria.Libros.Primero != null)
+        {
+            <ul>
+                @{
+                    var nodoLibro = Categoria.Libros.Primero;
+                }
+                @while (nodoLibro != null)
+                {
+                    <li>@nodoLibro.Dato</li>
+                    nodoLibro = nodoLibro.Siguiente;
+                }
+            </ul>
+        }
+        @if (Categoria.PrimeraSubcategoria != null)
+        {
+            <ul>
+                <NodoCategoriaItem Categoria="Categoria.PrimeraSubcategoria" />
+            </ul>
+        }
+    </li>
+    @if (Categoria.SiguienteHermana != null)
+    {
+        <NodoCategoriaItem Categoria="Categoria.SiguienteHermana" />
+    }
+}
+
+@code {
+    [Parameter]
+    public NodoCategoria? Categoria { get; set; }
+}

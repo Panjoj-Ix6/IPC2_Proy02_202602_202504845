@@ -1,0 +1,161 @@
+﻿@page "/libros"
+@rendermode InteractiveServer
+@using Catalogo.Dominio.Estructuras
+@using Catalogo.Dominio.Modelos
+@inject CatalogoLibreria Catalogo
+
+<PageTitle>Gestión de libros</PageTitle>
+
+<h1>Gestión de libros</h1>
+
+<h3>Registrar libro</h3>
+<div>
+    <input type="text" placeholder="ISBN" @bind="isbnRegistro" />
+    <input type="text" placeholder="Título" @bind="tituloRegistro" />
+    <input type="text" placeholder="Autor" @bind="autorRegistro" />
+    <input type="text" placeholder="Categoría" @bind="categoriaRegistro" />
+    <button @onclick="RegistrarLibro">Registrar</button>
+</div>
+@if (!string.IsNullOrEmpty(mensajeRegistro))
+{
+    <p class="@(errorRegistro ? "text-danger" : "text-success")">@mensajeRegistro</p>
+}
+
+<h3>Eliminar libro</h3>
+<div>
+    <input type="text" placeholder="ISBN" @bind="isbnEliminar" />
+    <button @onclick="EliminarLibro">Eliminar</button>
+</div>
+@if (!string.IsNullOrEmpty(mensajeEliminar))
+{
+    <p class="@(errorEliminar ? "text-danger" : "text-success")">@mensajeEliminar</p>
+}
+
+<h3>Buscar por ISBN</h3>
+<div>
+    <input type="text" placeholder="ISBN" @bind="isbnBuscar" />
+    <button @onclick="BuscarLibro">Buscar</button>
+</div>
+@if (!string.IsNullOrEmpty(mensajeBuscar))
+{
+    <p class="@(errorBuscar ? "text-danger" : "")">@mensajeBuscar</p>
+}
+
+<h3>Libro con menor y mayor ISBN</h3>
+<button @onclick="MostrarExtremos">Consultar</button>
+@if (!string.IsNullOrEmpty(mensajeExtremos))
+{
+    <p>@mensajeExtremos</p>
+}
+
+@code {
+    private string isbnRegistro = "";
+    private string tituloRegistro = "";
+    private string autorRegistro = "";
+    private string categoriaRegistro = "";
+    private string mensajeRegistro = "";
+    private bool errorRegistro;
+
+    private string isbnEliminar = "";
+    private string mensajeEliminar = "";
+    private bool errorEliminar;
+
+    private string isbnBuscar = "";
+    private string mensajeBuscar = "";
+    private bool errorBuscar;
+
+    private string mensajeExtremos = "";
+
+    private void RegistrarLibro()
+    {
+        if (!long.TryParse(isbnRegistro, out long isbn))
+        {
+            mensajeRegistro = "El ISBN debe ser un número.";
+            errorRegistro = true;
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(tituloRegistro) || string.IsNullOrWhiteSpace(autorRegistro) || string.IsNullOrWhiteSpace(categoriaRegistro))
+        {
+            mensajeRegistro = "Completa título, autor y categoría.";
+            errorRegistro = true;
+            return;
+        }
+
+        try
+        {
+            Catalogo.RegistrarLibro(isbn, tituloRegistro.Trim(), autorRegistro.Trim(), categoriaRegistro.Trim());
+            mensajeRegistro = $"Libro '{tituloRegistro}' registrado correctamente.";
+            errorRegistro = false;
+            isbnRegistro = "";
+            tituloRegistro = "";
+            autorRegistro = "";
+            categoriaRegistro = "";
+        }
+        catch (Exception ex)
+        {
+            mensajeRegistro = ex.Message;
+            errorRegistro = true;
+        }
+    }
+
+    private void EliminarLibro()
+    {
+        if (!long.TryParse(isbnEliminar, out long isbn))
+        {
+            mensajeEliminar = "El ISBN debe ser un número.";
+            errorEliminar = true;
+            return;
+        }
+
+        bool eliminado = Catalogo.EliminarLibro(isbn);
+        if (eliminado)
+        {
+            mensajeEliminar = $"Libro con ISBN {isbn} eliminado.";
+            errorEliminar = false;
+        }
+        else
+        {
+            mensajeEliminar = $"No existe ningún libro con ISBN {isbn}.";
+            errorEliminar = true;
+        }
+        isbnEliminar = "";
+    }
+
+    private void BuscarLibro()
+    {
+        if (!long.TryParse(isbnBuscar, out long isbn))
+        {
+            mensajeBuscar = "El ISBN debe ser un número.";
+            errorBuscar = true;
+            return;
+        }
+
+        Libro libro = Catalogo.IndiceLibros.Buscar(isbn);
+        if (libro != null)
+        {
+            mensajeBuscar = libro.ToString();
+            errorBuscar = false;
+        }
+        else
+        {
+            mensajeBuscar = $"No existe ningún libro con ISBN {isbn}.";
+            errorBuscar = true;
+        }
+    }
+
+    private void MostrarExtremos()
+    {
+        Libro minimo = Catalogo.IndiceLibros.ObtenerMinimo();
+        Libro maximo = Catalogo.IndiceLibros.ObtenerMaximo();
+
+        if (minimo == null || maximo == null)
+        {
+            mensajeExtremos = "El catálogo está vacío.";
+        }
+        else
+        {
+            mensajeExtremos = $"Menor ISBN: {minimo} — Mayor ISBN: {maximo}";
+        }
+    }
+}

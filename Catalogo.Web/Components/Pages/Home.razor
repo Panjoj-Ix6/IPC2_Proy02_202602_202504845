@@ -1,7 +1,49 @@
 ﻿@page "/"
+@rendermode InteractiveServer
+@using Catalogo.Dominio.Estructuras
+@using Catalogo.Dominio.Entrada
+@inject CatalogoLibreria Catalogo
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Inicio</PageTitle>
 
-<h1>Hello, world!</h1>
+<h1>Catálogo de biblioteca</h1>
 
-Welcome to your new app.
+<p>Carga un archivo XML con la estructura de categorías y libros para inicializar el catálogo.</p>
+
+<InputFile OnChange="CargarXml" />
+
+@if (!string.IsNullOrEmpty(mensaje))
+{
+    <p class="@(esError ? "text-danger" : "text-success")">@mensaje</p>
+}
+
+@code {
+    private string? mensaje;
+    private bool esError;
+
+    private async Task CargarXml(InputFileChangeEventArgs e)
+    {
+        try
+        {
+            string rutaTemporal = Path.GetTempFileName();
+
+            await using (FileStream escritura = File.Create(rutaTemporal))
+            {
+                await e.File.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024).CopyToAsync(escritura);
+            }
+
+            CargadorXml cargador = new CargadorXml();
+            cargador.CargarArchivo(rutaTemporal, Catalogo);
+
+            File.Delete(rutaTemporal);
+
+            mensaje = $"Catálogo cargado correctamente desde '{e.File.Name}'.";
+            esError = false;
+        }
+        catch (Exception ex)
+        {
+            mensaje = $"Error al cargar el archivo: {ex.Message}";
+            esError = true;
+        }
+    }
+}

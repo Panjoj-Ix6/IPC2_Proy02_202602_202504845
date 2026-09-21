@@ -1,0 +1,70 @@
+﻿@page "/catalogo"
+@rendermode InteractiveServer
+@using Catalogo.Dominio.Estructuras
+@inject CatalogoLibreria Catalogo
+
+<PageTitle>Gestión de catálogo</PageTitle>
+
+<h1>Gestión de catálogo</h1>
+
+<h3>Agregar categoría</h3>
+<div>
+    <input type="text" placeholder="Nombre de la nueva categoría" @bind="nombreCategoria" />
+    <input type="text" placeholder="Categoría padre (vacío = categoría principal)" @bind="nombrePadre" />
+    <button @onclick="AgregarCategoria">Agregar</button>
+</div>
+@if (!string.IsNullOrEmpty(mensaje))
+{
+    <p class="@(error ? "text-danger" : "text-success")">@mensaje</p>
+}
+
+<h3>Estructura actual</h3>
+@if (Catalogo.Categorias.Raiz == null)
+{
+    <p>Todavía no hay categorías registradas.</p>
+}
+else
+{
+    <ul>
+        <NodoCategoriaItem Categoria="Catalogo.Categorias.Raiz" />
+    </ul>
+}
+
+@code {
+    private string nombreCategoria = "";
+    private string nombrePadre = "";
+    private string mensaje = "";
+    private bool error;
+
+    private void AgregarCategoria()
+    {
+        if (string.IsNullOrWhiteSpace(nombreCategoria))
+        {
+            mensaje = "Escribe un nombre de categoría.";
+            error = true;
+            return;
+        }
+
+        try
+        {
+            if (string.IsNullOrWhiteSpace(nombrePadre))
+            {
+                Catalogo.RegistrarCategoriaPrincipal(nombreCategoria.Trim());
+            }
+            else
+            {
+                Catalogo.RegistrarSubcategoria(nombreCategoria.Trim(), nombrePadre.Trim());
+            }
+
+            mensaje = $"Categoría '{nombreCategoria}' agregada.";
+            error = false;
+            nombreCategoria = "";
+            nombrePadre = "";
+        }
+        catch (Exception ex)
+        {
+            mensaje = ex.Message;
+            error = true;
+        }
+    }
+}

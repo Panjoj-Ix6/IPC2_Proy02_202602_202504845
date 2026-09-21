@@ -1,10 +1,13 @@
 using Catalogo.Web.Components;
+using Catalogo.Dominio.Estructuras;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+builder.Services.AddSingleton<CatalogoLibreria>();
 
 var app = builder.Build();
 
