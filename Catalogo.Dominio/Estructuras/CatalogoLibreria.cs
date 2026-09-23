@@ -62,6 +62,24 @@ namespace Catalogo.Dominio.Estructuras
 
             return true;
         }
+
+        public ListaLibros ObtenerLibrosDeCategoriaOrdenados(string nombreCategoria)
+        {
+            ListaLibros todosOrdenados = indiceLibros.RecorridoAscendente();
+            ListaLibros resultado = new ListaLibros();
+
+            NodoListaLibros nodo = todosOrdenados.Primero;
+            while (nodo != null)
+            {
+                if (string.Equals(nodo.Dato.NombreCategoria, nombreCategoria, StringComparison.OrdinalIgnoreCase))
+                {
+                    resultado.AgregarFinal(nodo.Dato);
+                }
+                nodo = nodo.Siguiente;
+            }
+
+            return resultado;
+        }
         public void MostrarOrganizacion()
         {
             arbolCategorias.MostrarOrganizacion();

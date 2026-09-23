@@ -1,0 +1,95 @@
+﻿@page "/visualizacion"
+@rendermode InteractiveServer
+@using Catalogo.Dominio.Estructuras
+@using Catalogo.Dominio.Visualizacion
+@inject CatalogoLibreria Catalogo
+@inject IJSRuntime JS
+
+<PageTitle>Visualización</PageTitle>
+
+<h1>Visualización con Graphviz</h1>
+
+<h3>Libros de una categoría (orden ascendente por ISBN)</h3>
+<div>
+    <input type="text" placeholder="Nombre de la categoría" @bind="nombreCategoriaLibros" />
+    <button @onclick="VerLibrosDeCategoria">Generar grafo</button>
+</div>
+@if (!string.IsNullOrEmpty(mensajeLibros))
+{
+    <p class="text-danger">@mensajeLibros</p>
+}
+<div id="grafoLibros" style="border:1px solid #ccc; min-height:100px; margin-top:10px;"></div>
+
+<h3>Jerarquía de categorías</h3>
+<p>Deja el campo vacío para ver toda la jerarquía, o escribe el nombre de una subcategoría para partir desde ahí.</p>
+<div>
+    <input type="text" placeholder="Categoría de inicio (opcional)" @bind="nombreCategoriaJerarquia" />
+    <button @onclick="VerJerarquia">Generar grafo</button>
+</div>
+@if (!string.IsNullOrEmpty(mensajeJerarquia))
+{
+    <p class="text-danger">@mensajeJerarquia</p>
+}
+<div id="grafoJerarquia" style="border:1px solid #ccc; min-height:100px; margin-top:10px;"></div>
+
+@code {
+    private string nombreCategoriaLibros = "";
+    private string mensajeLibros = "";
+
+    private string nombreCategoriaJerarquia = "";
+    private string mensajeJerarquia = "";
+
+    private async Task VerLibrosDeCategoria()
+    {
+        mensajeLibros = "";
+
+        if (string.IsNullOrWhiteSpace(nombreCategoriaLibros))
+        {
+            mensajeLibros = "Escribe el nombre de una categoría.";
+            return;
+        }
+
+        NodoCategoria categoria = Catalogo.Categorias.BuscarPorNombre(nombreCategoriaLibros.Trim());
+        if (categoria == null)
+        {
+            mensajeLibros = $"No existe la categoría '{nombreCategoriaLibros}'.";
+            return;
+        }
+
+        ListaLibros libros = Catalogo.ObtenerLibrosDeCategoriaOrdenados(nombreCategoriaLibros.Trim());
+        string dot = GeneradorGraphviz.GenerarDotLibros(libros, $"Libros de {nombreCategoriaLibros}");
+
+        await JS.InvokeVoidAsync("renderizarGraphviz", dot, "grafoLibros");
+    }
+
+    private async Task VerJerarquia()
+    {
+        mensajeJerarquia = "";
+
+        NodoCategoria inicio;
+        string dot;
+
+        if (string.IsNullOrWhiteSpace(nombreCategoriaJerarquia))
+        {
+            inicio = Catalogo.Categorias.Raiz;
+            if (inicio == null)
+            {
+                mensajeJerarquia = "Todavía no hay categorías registradas.";
+                return;
+            }
+            dot = GeneradorGraphviz.GenerarDotJerarquiaCompleta(inicio);
+        }
+        else
+        {
+            inicio = Catalogo.Categorias.BuscarPorNombre(nombreCategoriaJerarquia.Trim());
+            if (inicio == null)
+            {
+                mensajeJerarquia = $"No existe la categoría '{nombreCategoriaJerarquia}'.";
+                return;
+            }
+            dot = GeneradorGraphviz.GenerarDotDesdeCategoria(inicio);
+        }
+
+        await JS.InvokeVoidAsync("renderizarGraphviz", dot, "grafoJerarquia");
+    }
+}
